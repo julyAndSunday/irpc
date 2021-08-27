@@ -1,0 +1,11 @@
+syntax = "proto3";
+option java_outer_classname = "Rpc";
+option java_package = "com.starter.irpc.netty.codec";
+
+message request{
+    string ip = 1;
+    int32 port = 2;
+    string class = 3;
+    string method = 4;
+
+}

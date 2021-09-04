@@ -1,5 +1,6 @@
 package com.starter.irpc.config;
 
+import com.starter.irpc.bootstrap.Bootstrap;
 import com.starter.irpc.netty.client.IRpcClient;
 import com.starter.irpc.netty.server.IRpcServer;
 import com.starter.irpc.properties.IRpcProperties;
@@ -36,5 +37,10 @@ public class IRpcAutoConfiguration {
     @Bean
     public IRpcClient iRpcClient(){
         return new IRpcClient(iRpcProperties.serverHost,iRpcProperties.serverPort);
+    }
+
+    @Bean
+    public Bootstrap bootstrap(){
+        return new Bootstrap(iRpcProperties.scanPath);
     }
 }

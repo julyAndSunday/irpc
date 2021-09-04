@@ -21,6 +21,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,13 +33,17 @@ import java.util.Set;
  * @Author: July
  * @Date: 2021-08-13 10:11
  **/
-@Component
 public class Bootstrap implements ApplicationListener<ContextRefreshedEvent> {
 
     private Logger logger = LoggerFactory.getLogger(Bootstrap.class);
     private CuratorClient curatorClient;
     private IRpcServer iRpcServer;
     private IRpcClient iRpcClient;
+    private String scanPath;
+
+    public Bootstrap(String scanPath) {
+        this.scanPath = scanPath;
+    }
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -50,17 +55,8 @@ public class Bootstrap implements ApplicationListener<ContextRefreshedEvent> {
         injectServiceAndStartClient(applicationContext);
     }
 
-    public static void main(String[] args) {
-        String path = System.getProperty("user.dir");
-        path = path.replaceAll("\\\\",".");
-        System.out.println(path);
-        Reflections reflections = new Reflections("com.starter.irpc", new FieldAnnotationsScanner());
-        Set<Field> fields = reflections.getFieldsAnnotatedWith(IRpc.class);
-        System.out.println(fields.size());
-
-    }
     private void injectServiceAndStartClient(ApplicationContext applicationContext) {
-        Reflections reflections = new Reflections("com.test.consumer", new FieldAnnotationsScanner());
+        Reflections reflections = new Reflections(scanPath, new FieldAnnotationsScanner());
         Set<Field> fields = reflections.getFieldsAnnotatedWith(IRpcAutoWired.class);
         if (!CollectionUtils.isEmpty(fields)) {
             for (Field field : fields) {

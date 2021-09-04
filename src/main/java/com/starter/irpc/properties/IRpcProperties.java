@@ -14,6 +14,7 @@ public class IRpcProperties {
     public int serverPort;
     public String zkHost;
     public int zkPort;
+    public String scanPath;
 
     public void setServerHost(String serverHost) {
         this.serverHost = serverHost;

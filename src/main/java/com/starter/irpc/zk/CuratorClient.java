@@ -10,8 +10,8 @@ import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.Watcher;
-import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CuratorClient {
@@ -43,7 +43,7 @@ public class CuratorClient {
 
     public void createPathData(String path, byte[] data) throws Exception {
         client.create().creatingParentsIfNeeded()
-                .withMode(CreateMode.EPHEMERAL)
+                .withMode(CreateMode.PERSISTENT)
                 .forPath(path, data);
     }
 
@@ -63,6 +63,15 @@ public class CuratorClient {
 
     public void watchNode(String path, Watcher watcher) throws Exception {
         client.getData().usingWatcher(watcher).forPath(path);
+    }
+
+    public List<byte[]> getAllRegister() throws Exception {
+        List<String> paths = client.getChildren().forPath(ZkConstant.ZK_REGISTER);
+        List<byte[]> list = new ArrayList<>();
+        for (String path : paths){
+            list.add(getData(path));
+        }
+        return list;
     }
 
     public byte[] getData(String path) throws Exception {

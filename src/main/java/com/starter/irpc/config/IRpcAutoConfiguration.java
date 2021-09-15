@@ -1,9 +1,10 @@
 package com.starter.irpc.config;
 
-import com.starter.irpc.bootstrap.Bootstrap;
 import com.starter.irpc.netty.client.IRpcClient;
 import com.starter.irpc.netty.server.IRpcServer;
 import com.starter.irpc.properties.IRpcProperties;
+import com.starter.irpc.route.RandomRouteBalance;
+import com.starter.irpc.route.RouteBalance;
 import com.starter.irpc.zk.CuratorClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -36,11 +37,12 @@ public class IRpcAutoConfiguration {
 
     @Bean
     public IRpcClient iRpcClient(){
-        return new IRpcClient(iRpcProperties.serverHost,iRpcProperties.serverPort);
+        return new IRpcClient(iRpcProperties.scanPath);
     }
 
     @Bean
-    public Bootstrap bootstrap(){
-        return new Bootstrap(iRpcProperties.scanPath);
+    public RouteBalance routeBalance(){
+        return new RandomRouteBalance();
     }
+
 }

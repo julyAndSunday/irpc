@@ -1,6 +1,9 @@
 package com.starter.irpc.netty.server;
 
+import com.starter.irpc.annotation.IRpc;
 import com.starter.irpc.annotation.IRpcAutoWired;
+import com.starter.irpc.domain.RpcService;
+import com.starter.irpc.zk.ZkConstant;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
@@ -8,65 +11,53 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Description:
  * @Author: July
  * @Date: 2021-07-21 15:22
  **/
-public class IRpcServer {
-    private String ip;
-    private int port;
-    private Logger logger = LoggerFactory.getLogger(IRpcServer.class);
-
+public class IRpcServer extends NettyServer implements ApplicationListener<ContextRefreshedEvent> {
 
     public IRpcServer(String ip, int port) {
-        this.ip = ip;
-        this.port = port;
+        super(ip, port);
     }
 
-    public String getIp() {
-        return ip;
-    }
 
-    public int getPort() {
-        return port;
-    }
-
-    public void start() {
-        //线程关闭
-        new Thread(() -> {
-            NioEventLoopGroup bossGroup =new NioEventLoopGroup();
-            NioEventLoopGroup workGroup =new NioEventLoopGroup();
-
-            ServerBootstrap serverBootstrap = new ServerBootstrap();
-            serverBootstrap.group(bossGroup,workGroup)
-                    .channel(NioServerSocketChannel.class)
-                    .option(ChannelOption.SO_BACKLOG,128)
-                    .childOption(ChannelOption.SO_KEEPALIVE,true)
-                    .childHandler(new IRpcServerInitializer());
-
-            //对关闭通道进行监听
-            try {
-                //绑定一个端口并且同步
-                //启动服务器
-                ChannelFuture cf = serverBootstrap.bind(ip,port).sync();
-                logger.info("start");
-                cf.channel().closeFuture().sync();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }finally {
-                workGroup.shutdownGracefully();
-                bossGroup.shutdownGracefully();
+    @Override
+    public void onApplicationEvent(ContextRefreshedEvent event) {
+        ApplicationContext applicationContext = event.getApplicationContext();
+        Map<String, Object> beanMap = applicationContext.getBeansWithAnnotation(IRpc.class);
+        if (!CollectionUtils.isEmpty(beanMap)) {
+            for (Map.Entry<String, Object> entry : beanMap.entrySet()) {
+                Class clazz = entry.getValue().getClass();
+                String service = entry.getKey();
+                RpcService rpcService = new RpcService();
+                rpcService.setServiceName(service);
+                rpcService.setClazz(clazz);
+                rpcService.setIp(getIp());
+                rpcService.setPort(getPort());
+                try {
+                    //服务注册
+                    addService(rpcService);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-        }).start();
-    }
-
-    public static void main(String[] args) {
-        IRpcServer iRpcServer = new IRpcServer("localhost", 20880);
-        iRpcServer.start();
+            start();
+        }
     }
 }

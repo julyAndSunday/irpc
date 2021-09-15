@@ -1,6 +1,7 @@
 package com.starter.irpc.annotation;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -9,6 +10,6 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Bean  //同时注入ioc容器
+@Component  //同时注入ioc容器
 public @interface IRpc {
 }

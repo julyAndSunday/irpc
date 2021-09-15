@@ -1,4 +1,4 @@
-package com.starter.irpc.netty.codec;
+package com.starter.irpc.netty.client.handler;
 
 import com.alibaba.fastjson.JSON;
 import com.starter.irpc.domain.RpcRequest;

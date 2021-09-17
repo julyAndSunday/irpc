@@ -2,6 +2,8 @@ package com.starter.irpc.domain;
 
 import lombok.Data;
 
+import java.io.Serializable;
+
 
 /**
  * @Description:
@@ -9,7 +11,7 @@ import lombok.Data;
  * @Date: 2021-07-21 16:49
  **/
 @Data
-public class RpcRequest  {
+public class RpcRequest {
 
     private Long id;
     private String clazz;
@@ -18,7 +20,7 @@ public class RpcRequest  {
     private Object[] params;
     private Object ret;
 
-    public RpcRequest()  {
+    public RpcRequest() {
         id = System.currentTimeMillis();
     }
 }

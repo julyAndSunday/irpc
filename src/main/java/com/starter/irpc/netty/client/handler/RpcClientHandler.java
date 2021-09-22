@@ -1,29 +1,28 @@
 package com.starter.irpc.netty.client.handler;
 
-import com.starter.irpc.domain.RpcRequest;
-import com.starter.irpc.domain.RpcResponse;
-import com.starter.irpc.netty.client.IRpcClient;
-import com.starter.irpc.netty.client.RpcCache;
-import com.starter.irpc.utils.WailMap;
+import com.starter.irpc.domain.RpcMessage;
+import com.starter.irpc.domain.RpcMessageType;
+import com.starter.irpc.utils.RpcCache;
 import io.netty.channel.*;
+import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
-import io.netty.util.concurrent.EventExecutorGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.SocketAddress;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @Description:
  * @Author: July
  * @Date: 2021-07-22 16:11
  **/
-public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
+public class RpcClientHandler extends SimpleChannelInboundHandler<RpcMessage> {
     private static final Logger logger = LoggerFactory.getLogger(RpcClientHandler.class);
 
     private SocketAddress remotePeer;
     private static volatile Channel channel;
+    private int lossCount = 0;
+    private final int MAX_PING = 5;
 
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
@@ -37,23 +36,26 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
         this.remotePeer = channel.remoteAddress();
     }
 
-    protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcResponse rpcResponse) throws Exception {
-        RpcCache.get(rpcResponse.getId()).setRpcResponse(rpcResponse);
+    protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcMessage rpcMessage) throws Exception {
+        lossCount = 0;
+        RpcCache.getFuture(rpcMessage.getId()).setRpcResponse(rpcMessage);
     }
 
+    //发送ping包
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-        if (evt instanceof IdleStateEvent) {
-            //Send ping
-//            sendRequest(Beat.BEAT_PING);
-//            logger.debug("Client send beat-ping to " + remotePeer);
-        } else {
-            super.userEventTriggered(ctx, evt);
+        if (evt instanceof IdleStateEvent){
+            IdleStateEvent event = (IdleStateEvent)evt;
+            if (event.state()== IdleState.READER_IDLE && lossCount<MAX_PING){
+                logger.info("send ping");
+                lossCount++;
+                RpcMessage rpcMessage = new RpcMessage();
+                rpcMessage.setType(RpcMessageType.ping);
+                ctx.writeAndFlush(rpcMessage);
+            }
+        }else {
+            super.userEventTriggered(ctx,evt);
         }
     }
 
-
-    public static void addWaiter(Long id,RpcFuture rpcFuture){
-        RpcCache.put(id,rpcFuture);
-    }
 }

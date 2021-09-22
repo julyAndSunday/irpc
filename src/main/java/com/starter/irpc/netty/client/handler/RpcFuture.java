@@ -1,6 +1,6 @@
 package com.starter.irpc.netty.client.handler;
 
-import com.starter.irpc.domain.RpcResponse;
+import com.starter.irpc.domain.RpcMessage;
 
 /**
  * @Description:
@@ -9,14 +9,14 @@ import com.starter.irpc.domain.RpcResponse;
  **/
 public class RpcFuture {
 
-    private RpcResponse rpcResponse;
+    private RpcMessage rpcMessage;
     private boolean done;
 
     public RpcFuture( ) {
         done = false;
     }
 
-    public synchronized RpcResponse get(){
+    public synchronized RpcMessage get(){
         while (!done) {
             try {
                 wait();
@@ -24,18 +24,14 @@ public class RpcFuture {
                 e.printStackTrace();
             }
         }
-        return rpcResponse;
+        return rpcMessage;
     }
 
-    public synchronized void setRpcResponse(RpcResponse rpcResponse){
+    public synchronized void setRpcResponse(RpcMessage rpcMessage){
         if (done)return;
 
-        this.rpcResponse = rpcResponse;
+        this.rpcMessage = rpcMessage;
         done = true;
         notify();
     }
-
-
-
-
 }

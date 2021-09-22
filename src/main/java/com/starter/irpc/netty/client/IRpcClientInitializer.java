@@ -1,7 +1,7 @@
 package com.starter.irpc.netty.client;
 
-import com.starter.irpc.netty.client.handler.RpcRequestEncoder;
-import com.starter.irpc.netty.client.handler.RpcResponseDecoder;
+import com.starter.irpc.netty.client.codec.RpcMessageDecoder;
+import com.starter.irpc.netty.client.codec.RpcMessageEncoder;
 import com.starter.irpc.netty.client.handler.RpcClientHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
@@ -18,9 +18,9 @@ public class IRpcClientInitializer extends ChannelInitializer<SocketChannel> {
 
     protected void initChannel(SocketChannel socketChannel) throws Exception {
         socketChannel.pipeline()
-//                .addLast(new IdleStateHandler(0, 0, 90, TimeUnit.SECONDS))
-                .addLast(new RpcRequestEncoder())
-                .addLast(new RpcResponseDecoder())
+                .addLast(new IdleStateHandler(10, 0, 0, TimeUnit.SECONDS))
+                .addLast(new RpcMessageDecoder())
+                .addLast(new RpcMessageEncoder())
                 .addLast(new RpcClientHandler());
     }
 }

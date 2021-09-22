@@ -1,6 +1,6 @@
-package com.starter.irpc.netty.client.handler;
+package com.starter.irpc.netty.client.codec;
 
-import com.starter.irpc.domain.RpcResponse;
+import com.starter.irpc.domain.RpcMessage;
 import com.starter.irpc.utils.KryoUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -13,7 +13,7 @@ import java.util.List;
  * @Author: July
  * @Date: 2021-08-11 21:35
  **/
-public class RpcResponseDecoder extends ByteToMessageDecoder {
+public class RpcMessageDecoder extends ByteToMessageDecoder {
 
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list){
         if (byteBuf.readableBytes() < 4) {
@@ -26,7 +26,7 @@ public class RpcResponseDecoder extends ByteToMessageDecoder {
         final byte[] bytes = new byte[len];
         byteBuf.readBytes(bytes);
 //        byteBuf.getBytes(byteBuf.readerIndex(), bytes, 0, len);
-        list.add(KryoUtils.deserialize(bytes,RpcResponse.class));
+        list.add(KryoUtils.deserialize(bytes, RpcMessage.class));
     }
 
 

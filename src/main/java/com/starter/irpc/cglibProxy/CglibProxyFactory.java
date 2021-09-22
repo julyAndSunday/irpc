@@ -1,5 +1,6 @@
 package com.starter.irpc.cglibProxy;
 
+import com.starter.irpc.netty.client.IRpcClient;
 import net.sf.cglib.proxy.Enhancer;
 
 /**
@@ -8,7 +9,7 @@ import net.sf.cglib.proxy.Enhancer;
  * @Date: 2021-07-22 15:27
  **/
 public class CglibProxyFactory {
-    public static Object getProxy(Class<?> clazz) {
+    public static Object getProxy(Class<?> clazz, IRpcClient iRpcClient) {
         // 创建动态代理增强类
         Enhancer enhancer = new Enhancer();
         // 设置类加载器
@@ -18,7 +19,7 @@ public class CglibProxyFactory {
         //设置方法过滤器
 //        enhancer.setCallbackFilter(new MethodFilter());
         // 设置方法拦截器
-        enhancer.setCallback(new RpcMethodInterceptor());
+        enhancer.setCallback(new RpcMethodInterceptor(iRpcClient));
         // 创建代理类
         return enhancer.create();
     }

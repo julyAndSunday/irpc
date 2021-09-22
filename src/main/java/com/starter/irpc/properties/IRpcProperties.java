@@ -31,4 +31,8 @@ public class IRpcProperties {
     public void setZkPort(int zkPort) {
         this.zkPort = zkPort;
     }
+
+    public void setScanPath(String scanPath) {
+        this.scanPath = scanPath;
+    }
 }

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -19,29 +20,30 @@ import org.springframework.context.annotation.Configuration;
  **/
 @Configuration
 @EnableConfigurationProperties(IRpcProperties.class)
-@ConditionalOnProperty(prefix = "irpc",value = "enabled",matchIfMissing = true)
+@ConditionalOnProperty(prefix = "irpc", value = "enabled", matchIfMissing = true)
 public class IRpcAutoConfiguration {
 
     @Autowired
     private IRpcProperties iRpcProperties;
 
     @Bean
-    public CuratorClient curatorClient(){
-        return new CuratorClient(iRpcProperties.zkHost,iRpcProperties.zkPort);
+    public CuratorClient curatorClient() {
+        return new CuratorClient(iRpcProperties.zkHost, iRpcProperties.zkPort);
     }
 
     @Bean
-    public IRpcServer iRpcServer(){
-        return new IRpcServer(iRpcProperties.serverHost,iRpcProperties.serverPort);
+    public IRpcServer iRpcServer() {
+        return new IRpcServer(iRpcProperties.serverHost, iRpcProperties.serverPort);
     }
 
     @Bean
-    public IRpcClient iRpcClient(){
+    @Conditional(ClientCondition.class)
+    public IRpcClient iRpcClient() {
         return new IRpcClient(iRpcProperties.scanPath);
     }
 
     @Bean
-    public RouteBalance routeBalance(){
+    public RouteBalance routeBalance() {
         return new RandomRouteBalance();
     }
 

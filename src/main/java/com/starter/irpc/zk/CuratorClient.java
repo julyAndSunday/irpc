@@ -43,7 +43,7 @@ public class CuratorClient {
 
     public void createPathData(String path, byte[] data) throws Exception {
         client.create().creatingParentsIfNeeded()
-                .withMode(CreateMode.PERSISTENT)
+                .withMode(CreateMode.EPHEMERAL)
                 .forPath(path, data);
     }
 
@@ -69,13 +69,13 @@ public class CuratorClient {
         List<String> paths = client.getChildren().forPath(ZkConstant.ZK_REGISTER);
         List<byte[]> list = new ArrayList<>();
         for (String path : paths){
-            list.add(getData(path));
+            list.add(getData("/"+path));
         }
         return list;
     }
 
     public byte[] getData(String path) throws Exception {
-        return client.getData().forPath(path);
+        return client.getData().forPath(ZkConstant.ZK_REGISTER+path);
     }
 
 
@@ -99,9 +99,4 @@ public class CuratorClient {
         client.close();
     }
 
-    public static void main(String[] args) throws Exception {
-        CuratorClient client = new CuratorClient("120.79.220.182:2181");
-        boolean helloServiceImpl = client.containService("helloServiceImpl");
-        System.out.println(helloServiceImpl);
-    }
 }

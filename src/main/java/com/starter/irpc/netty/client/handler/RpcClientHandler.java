@@ -3,6 +3,7 @@ package com.starter.irpc.netty.client.handler;
 import com.starter.irpc.domain.RpcRequest;
 import com.starter.irpc.domain.RpcResponse;
 import com.starter.irpc.netty.client.IRpcClient;
+import com.starter.irpc.netty.client.RpcCache;
 import com.starter.irpc.utils.WailMap;
 import io.netty.channel.*;
 import io.netty.handler.timeout.IdleStateEvent;
@@ -23,7 +24,6 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
 
     private SocketAddress remotePeer;
     private static volatile Channel channel;
-    private static ConcurrentHashMap<Long, RpcFuture> waitingRPC = new ConcurrentHashMap<>();
 
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
@@ -38,8 +38,7 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
     }
 
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcResponse rpcResponse) throws Exception {
-        System.out.println("server read:"+rpcResponse);
-        waitingRPC.get(rpcResponse.getId()).setRpcResponse(rpcResponse);
+        RpcCache.get(rpcResponse.getId()).setRpcResponse(rpcResponse);
     }
 
     @Override
@@ -55,6 +54,6 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
 
 
     public static void addWaiter(Long id,RpcFuture rpcFuture){
-        waitingRPC.put(id,rpcFuture);
+        RpcCache.put(id,rpcFuture);
     }
 }

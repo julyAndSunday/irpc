@@ -1,7 +1,5 @@
 package com.starter.irpc.netty.client.handler;
 
-import com.alibaba.fastjson.JSON;
-import com.starter.irpc.domain.RpcRequest;
 import com.starter.irpc.domain.RpcResponse;
 import com.starter.irpc.utils.KryoUtils;
 import io.netty.buffer.ByteBuf;
@@ -17,7 +15,7 @@ import java.util.List;
  **/
 public class RpcResponseDecoder extends ByteToMessageDecoder {
 
-    protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
+    protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list){
         if (byteBuf.readableBytes() < 4) {
             return;
         }
@@ -26,7 +24,8 @@ public class RpcResponseDecoder extends ByteToMessageDecoder {
             return;
         }
         final byte[] bytes = new byte[len];
-        byteBuf.getBytes(byteBuf.readerIndex(), bytes, 0, len);
+        byteBuf.readBytes(bytes);
+//        byteBuf.getBytes(byteBuf.readerIndex(), bytes, 0, len);
         list.add(KryoUtils.deserialize(bytes,RpcResponse.class));
     }
 

@@ -25,7 +25,8 @@ public class RpcRequestDecoder extends ByteToMessageDecoder {
             return;
         }
         final byte[] bytes = new byte[len];
-        byteBuf.getBytes(byteBuf.readerIndex(), bytes, 0, len);
+        byteBuf.readBytes(bytes);
+//        byteBuf.getBytes(byteBuf.readerIndex(), bytes, 0, len);
         list.add(KryoUtils.deserialize(bytes,RpcRequest.class));
     }
 }

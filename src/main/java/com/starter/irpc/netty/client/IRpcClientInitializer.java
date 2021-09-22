@@ -18,7 +18,7 @@ public class IRpcClientInitializer extends ChannelInitializer<SocketChannel> {
 
     protected void initChannel(SocketChannel socketChannel) throws Exception {
         socketChannel.pipeline()
-                .addLast(new IdleStateHandler(0, 0, 90, TimeUnit.SECONDS))
+//                .addLast(new IdleStateHandler(0, 0, 90, TimeUnit.SECONDS))
                 .addLast(new RpcRequestEncoder())
                 .addLast(new RpcResponseDecoder())
                 .addLast(new RpcClientHandler());

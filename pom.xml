@@ -42,16 +42,16 @@
             <version>2.4.2</version>
         </dependency>
         <!--序列化-->
-        <dependency>
-            <groupId>io.protostuff</groupId>
-            <artifactId>protostuff-core</artifactId>
-            <version>1.7.4</version>
-        </dependency>
-        <dependency>
-            <groupId>io.protostuff</groupId>
-            <artifactId>protostuff-runtime</artifactId>
-            <version>1.7.4</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>io.protostuff</groupId>-->
+            <!--<artifactId>protostuff-core</artifactId>-->
+            <!--<version>1.7.4</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>io.protostuff</groupId>-->
+            <!--<artifactId>protostuff-runtime</artifactId>-->
+            <!--<version>1.7.4</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>

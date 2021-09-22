@@ -27,8 +27,8 @@ public class RpcServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
+        System.out.println("server read "+msg);
         serverHandlerPool.execute(()->{
-
             RpcRequest rpcRequest = (RpcRequest) msg;
             Object bean = BeanUtils.getBean(rpcRequest.getClazz());
             String[] paramsType = rpcRequest.getParamsType();
@@ -37,14 +37,18 @@ public class RpcServerHandler extends ChannelInboundHandlerAdapter {
             for (int i = 0; i < paramsType.length; i++) {
                 try {
                     paramsTypes[i] = Class.forName(paramsType[i]);
-                    Method method = bean.getClass().getMethod(rpcRequest.getMethod(), paramsTypes);
-                    Object ret = method.invoke(bean, rpcRequest.getParams());
-                    rpcResponse.setRet(ret);
-                } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                    rpcResponse.setCode(500);
-                    rpcResponse.setRet(null);
+                } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
+            }
+            try {
+                Method method = bean.getClass().getMethod(rpcRequest.getMethod(), paramsTypes);
+                Object ret = method.invoke(bean, rpcRequest.getParams());
+                rpcResponse.setCode(200);
+                rpcResponse.setRet(ret);
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                rpcResponse.setCode(500);
+                rpcResponse.setRet(null);
             }
             rpcResponse.setId(rpcRequest.getId());
             ctx.writeAndFlush(rpcResponse);
@@ -53,7 +57,19 @@ public class RpcServerHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        System.out.println("连接成功");
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        System.out.println("断开连接");
+    }
+
+    @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        System.out.println("异常");
+        cause.printStackTrace();
         ctx.close();
     }
 }

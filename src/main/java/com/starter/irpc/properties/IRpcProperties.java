@@ -15,6 +15,7 @@ public class IRpcProperties {
     public String zkHost;
     public int zkPort;
     public String scanPath;
+    public Long timeout;
 
     public void setServerHost(String serverHost) {
         this.serverHost = serverHost;
@@ -30,6 +31,10 @@ public class IRpcProperties {
 
     public void setZkPort(int zkPort) {
         this.zkPort = zkPort;
+    }
+
+    public void setTimeout(Long timeout) {
+        this.timeout = timeout;
     }
 
     public void setScanPath(String scanPath) {

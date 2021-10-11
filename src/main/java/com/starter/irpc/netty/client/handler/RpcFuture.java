@@ -16,6 +16,15 @@ public class RpcFuture {
         done = false;
     }
 
+    public synchronized RpcMessage get(Long timeout){
+        try {
+            wait(timeout);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return rpcMessage;
+    }
+
     public synchronized RpcMessage get(){
         while (!done) {
             try {
@@ -28,10 +37,10 @@ public class RpcFuture {
     }
 
     public synchronized void setRpcResponse(RpcMessage rpcMessage){
-        if (done)return;
-
+        if (done) return;
         this.rpcMessage = rpcMessage;
         done = true;
         notify();
     }
+
 }

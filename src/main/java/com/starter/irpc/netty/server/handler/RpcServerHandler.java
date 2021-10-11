@@ -2,6 +2,7 @@ package com.starter.irpc.netty.server.handler;
 
 import com.starter.irpc.domain.RpcMessage;
 import com.starter.irpc.domain.RpcMessageType;
+import com.starter.irpc.domain.RpcResponseType;
 import com.starter.irpc.utils.BeanUtils;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -36,7 +37,7 @@ public class RpcServerHandler extends ChannelInboundHandlerAdapter {
             Object bean = BeanUtils.getBean(rpcRequest.getClazz());
             String[] paramsType = rpcRequest.getParamsType();
             Class paramsTypes[] = new Class[paramsType.length];
-            RpcMessage rpcResponse = new RpcMessage();
+            RpcMessage rpcResponse = new RpcMessage(rpcRequest.getId());
             rpcResponse.setType(RpcMessageType.response);
             for (int i = 0; i < paramsType.length; i++) {
                 try {
@@ -48,11 +49,11 @@ public class RpcServerHandler extends ChannelInboundHandlerAdapter {
             try {
                 Method method = bean.getClass().getMethod(rpcRequest.getMethod(), paramsTypes);
                 Object ret = method.invoke(bean, rpcRequest.getParams());
+                rpcResponse.setResultType(RpcResponseType.SUCCESS);
                 rpcResponse.setRet(ret);
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                rpcResponse.setRet(null);
+                rpcResponse.setResultType(RpcResponseType.FAILED);
             }
-            rpcResponse.setId(rpcRequest.getId());
             ctx.writeAndFlush(rpcResponse);
         });
 

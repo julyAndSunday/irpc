@@ -39,7 +39,7 @@ public class IRpcAutoConfiguration {
     @Bean
     @Conditional(ClientCondition.class)
     public IRpcClient iRpcClient() {
-        return new IRpcClient(iRpcProperties.scanPath);
+        return new IRpcClient(iRpcProperties.scanPath,iRpcProperties.timeout);
     }
 
     @Bean

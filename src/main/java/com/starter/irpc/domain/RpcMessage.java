@@ -11,14 +11,18 @@ import lombok.Data;
  **/
 @Data
 public class RpcMessage {
-
     private Long id;
     private int type;
     private String clazz;
     private String method;
     private String[] paramsType;
     private Object[] params;
+    private String ResultType;
     private Object ret;
+
+    public RpcMessage(Long id) {
+        this.id = id;
+    }
 
     public RpcMessage() {
         id = System.currentTimeMillis();

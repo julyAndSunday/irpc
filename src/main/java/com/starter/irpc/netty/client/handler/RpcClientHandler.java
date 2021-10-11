@@ -36,9 +36,12 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcMessage> {
         this.remotePeer = channel.remoteAddress();
     }
 
-    protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcMessage rpcMessage) throws Exception {
+    protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcMessage rpcMessage)  {
         lossCount = 0;
-        RpcCache.getFuture(rpcMessage.getId()).setRpcResponse(rpcMessage);
+        System.out.println("client read:"+rpcMessage);
+        try {
+            RpcCache.getFuture(rpcMessage.getId()).setRpcResponse(rpcMessage);
+        }catch (NullPointerException ignored){}
     }
 
     //发送ping包

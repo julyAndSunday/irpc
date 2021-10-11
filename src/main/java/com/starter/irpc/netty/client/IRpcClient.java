@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.starter.irpc.annotation.IRpcAutoWired;
 import com.starter.irpc.cglibProxy.CglibProxyFactory;
 import com.starter.irpc.domain.RpcMessage;
+import com.starter.irpc.domain.RpcMessageType;
+import com.starter.irpc.domain.RpcResponseType;
 import com.starter.irpc.domain.RpcService;
 import com.starter.irpc.netty.client.handler.RpcFuture;
 import com.starter.irpc.route.RouteBalance;
@@ -40,6 +42,7 @@ import java.util.concurrent.*;
 public class IRpcClient implements ApplicationListener<ContextRefreshedEvent> {
     private static final Logger logger = LoggerFactory.getLogger(IRpcClient.class);
     private String scanPath;
+    private Long timeout;
     private Bootstrap bootstrap;
     @Autowired
     private CuratorClient curatorClient;
@@ -47,8 +50,9 @@ public class IRpcClient implements ApplicationListener<ContextRefreshedEvent> {
     private RouteBalance routeBalance;
     private ThreadPoolExecutor executor;
 
-    public IRpcClient(String scanPath) {
+    public IRpcClient(String scanPath,Long timeout) {
         this.scanPath = scanPath;
+        this.timeout = timeout;
     }
 
     public RpcMessage sendRequest(RpcMessage rpcRequest) {
@@ -77,9 +81,15 @@ public class IRpcClient implements ApplicationListener<ContextRefreshedEvent> {
             }
         });
         //阻塞获取
-        RpcMessage rpcMessage = rpcFuture.get();
-        RpcCache.removeFuture(rpcMessage.getId());
-        return rpcMessage;
+        RpcMessage rpcResponse = rpcFuture.get(timeout);
+        if (rpcResponse == null){
+            rpcResponse = new RpcMessage(rpcRequest.getId());
+            rpcResponse.setType(RpcMessageType.response);
+            rpcResponse.setResultType(RpcResponseType.TIMEOUT);
+            throw new RuntimeException("read time out");
+        }
+        RpcCache.removeFuture(rpcResponse.getId());
+        return rpcResponse;
     }
 
     @Override
